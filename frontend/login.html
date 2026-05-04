@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Connexion - Social Gate</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="card">
+      <h1 class="brand">Social Gate</h1>
+      <h2>Connexion</h2>
+      <form id="login-form" novalidate>
+        <label>
+          Identifiant (nom d'utilisateur ou email)
+          <input
+            type="text"
+            name="identifier"
+            autocomplete="username"
+            required
+          />
+        </label>
+        <label>
+          Mot de passe
+          <input
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+            minlength="8"
+          />
+        </label>
+        <button type="submit" id="login-submit">Se connecter</button>
+        <p class="error" id="login-error" hidden></p>
+      </form>
+      <p class="muted">
+        Pas encore de compte ? <a href="/register.html">Créer un compte</a>
+      </p>
+    </main>
+    <script src="/app.js"></script>
+    <script>
+      SocialGate.bindLoginForm();
+    </script>
+  </body>
+</html>
