@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inscription - Social Gate</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="card">
+      <h1 class="brand">Social Gate</h1>
+      <h2>Créer un compte</h2>
+      <form id="register-form" novalidate>
+        <div class="grid">
+          <label>
+            Prénom
+            <input
+              type="text"
+              name="first_name"
+              autocomplete="given-name"
+              required
+              maxlength="50"
+            />
+          </label>
+          <label>
+            Nom
+            <input
+              type="text"
+              name="last_name"
+              autocomplete="family-name"
+              required
+              maxlength="50"
+            />
+          </label>
+        </div>
+        <label>
+          Nom d'utilisateur
+          <input
+            type="text"
+            name="username"
+            autocomplete="username"
+            pattern="[A-Za-z0-9_]{3,30}"
+            title="3 à 30 caractères, lettres / chiffres / underscore"
+            required
+          />
+        </label>
+        <label>
+          Email
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+        <label>
+          Date de naissance
+          <input type="date" name="birth_date" required />
+        </label>
+        <label>
+          Mot de passe
+          <input
+            type="password"
+            name="password"
+            autocomplete="new-password"
+            minlength="8"
+            required
+          />
+        </label>
+        <label>
+          Confirmer le mot de passe
+          <input
+            type="password"
+            name="password_confirm"
+            autocomplete="new-password"
+            minlength="8"
+            required
+          />
+        </label>
+        <button type="submit" id="register-submit">S'inscrire</button>
+        <p class="error" id="register-error" hidden></p>
+      </form>
+      <p class="muted">
+        Déjà un compte ? <a href="/login.html">Se connecter</a>
+      </p>
+    </main>
+    <script src="/app.js"></script>
+    <script>
+      SocialGate.bindRegisterForm();
+    </script>
+  </body>
+</html>

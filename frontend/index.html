@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Social Gate</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="card">
+      <h1 class="brand">Social Gate</h1>
+      <p>Chargement&hellip;</p>
+    </main>
+    <script>
+      (async () => {
+        try {
+          const res = await fetch("/api/me", { credentials: "same-origin" });
+          if (res.ok) {
+            window.location.replace("/home.html");
+            return;
+          }
+        } catch (_) {
+          /* fall through */
+        }
+        window.location.replace("/login.html");
+      })();
+    </script>
+  </body>
+</html>
