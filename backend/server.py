@@ -30,6 +30,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from .auth import SessionStore
+from .feed import proximity_score, rank_timeline
+from .posts import PostError, PostStore
 from .recommendation import recommend_friends
 from .social_store import FriendshipError, SocialStore
 from .user_store import (
@@ -44,11 +46,17 @@ DEFAULT_DB = Path(__file__).resolve().parent.parent / "data" / "users.json"
 DEFAULT_FRIENDS_DB = (
     Path(__file__).resolve().parent.parent / "data" / "friends.json"
 )
+DEFAULT_POSTS_DB = (
+    Path(__file__).resolve().parent.parent / "data" / "posts.json"
+)
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 
 def make_handler(
-    user_store: UserStore, sessions: SessionStore, social: SocialStore
+    user_store: UserStore,
+    sessions: SessionStore,
+    social: SocialStore,
+    posts: PostStore,
 ):
     class Handler(BaseHTTPRequestHandler):
         server_version = "SocialGateLogin/0.1"
@@ -127,6 +135,12 @@ def make_handler(
                     self._handle_add_friend()
                 elif path == "/api/friends/remove":
                     self._handle_remove_friend()
+                elif path == "/api/posts":
+                    self._handle_create_post()
+                elif path == "/api/posts/like":
+                    self._handle_like_post()
+                elif path == "/api/posts/unlike":
+                    self._handle_unlike_post()
                 else:
                     self._send_json(
                         HTTPStatus.NOT_FOUND, {"error": "unknown endpoint"}
@@ -134,6 +148,8 @@ def make_handler(
             except ValidationError as exc:
                 self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
             except FriendshipError as exc:
+                self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
+            except PostError as exc:
                 self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
             except DuplicateUserError as exc:
                 self._send_json(HTTPStatus.CONFLICT, {"error": str(exc)})
@@ -153,6 +169,8 @@ def make_handler(
                     self._handle_list_friends()
                 elif path == "/api/recommendations":
                     self._handle_recommendations()
+                elif path == "/api/timeline":
+                    self._handle_timeline()
                 else:
                     self._serve_static(path)
             except Exception:
@@ -286,6 +304,73 @@ def make_handler(
                 payload.append(entry)
             self._send_json(HTTPStatus.OK, {"recommendations": payload})
 
+        # --- Gate Timeline (Bloc C: posts + proximity score + MergeSort) --
+
+        def _handle_create_post(self) -> None:
+            _token, user = self._current_user()
+            if user is None:
+                self._send_json(
+                    HTTPStatus.UNAUTHORIZED, {"error": "not authenticated"}
+                )
+                return
+            payload = self._read_json_body()
+            content = payload.get("content")
+            post = posts.create_post(user.user_id, content)
+            self._send_json(HTTPStatus.CREATED, {"post": post.public_dict()})
+
+        def _require_post_id(self, payload: dict) -> int:
+            post_id = payload.get("post_id")
+            if isinstance(post_id, bool) or not isinstance(post_id, int):
+                raise PostError("post_id (integer) is required")
+            return post_id
+
+        def _handle_like_post(self) -> None:
+            _token, user = self._current_user()
+            if user is None:
+                self._send_json(
+                    HTTPStatus.UNAUTHORIZED, {"error": "not authenticated"}
+                )
+                return
+            payload = self._read_json_body()
+            post_id = self._require_post_id(payload)
+            created = posts.like_post(post_id, user.user_id)
+            self._send_json(HTTPStatus.OK, {"liked": created})
+
+        def _handle_unlike_post(self) -> None:
+            _token, user = self._current_user()
+            if user is None:
+                self._send_json(
+                    HTTPStatus.UNAUTHORIZED, {"error": "not authenticated"}
+                )
+                return
+            payload = self._read_json_body()
+            post_id = self._require_post_id(payload)
+            removed = posts.unlike_post(post_id, user.user_id)
+            self._send_json(HTTPStatus.OK, {"unliked": removed})
+
+        def _handle_timeline(self) -> None:
+            _token, user = self._current_user()
+            if user is None:
+                self._send_json(
+                    HTTPStatus.UNAUTHORIZED, {"error": "not authenticated"}
+                )
+                return
+            # Score-sorted feed: all posts ranked by proximity score for this
+            # viewer (project slide 6), ordered with our MergeSort (LAB4/L9).
+            ranked = rank_timeline(posts.all_posts(), user.user_id, social.graph)
+            payload = []
+            for post, score in ranked:
+                author = user_store.find_by_id(post.author_id)
+                entry = post.public_dict()
+                entry["score"] = score
+                entry["liked_by_me"] = user.user_id in post.likes
+                if author is not None:
+                    pub = author.public_dict()
+                    entry["author_username"] = pub["username"]
+                    entry["author_name"] = pub["first_name"] + " " + pub["last_name"]
+                payload.append(entry)
+            self._send_json(HTTPStatus.OK, {"timeline": payload})
+
         # --- static files -------------------------------------------------
 
         def _serve_static(self, path: str) -> None:
@@ -321,14 +406,19 @@ def make_handler(
 
 
 def build_server(
-    host: str, port: int, db_path: Path, friends_db_path: Path | None = None
+    host: str,
+    port: int,
+    db_path: Path,
+    friends_db_path: Path | None = None,
+    posts_db_path: Path | None = None,
 ) -> tuple[ThreadingHTTPServer, UserStore]:
     user_store = UserStore(db_path)
     sessions = SessionStore()
     social = SocialStore(friends_db_path or DEFAULT_FRIENDS_DB)
     # Seed the graph with every existing user so they are all nodes.
     social.sync_users(u.user_id for u in user_store.all_users())
-    handler_cls = make_handler(user_store, sessions, social)
+    posts = PostStore(posts_db_path or DEFAULT_POSTS_DB)
+    handler_cls = make_handler(user_store, sessions, social, posts)
     httpd = ThreadingHTTPServer((host, port), handler_cls)
     return httpd, user_store
 
