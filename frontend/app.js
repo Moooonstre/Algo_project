@@ -288,14 +288,18 @@
         return;
       }
       suggEl.innerHTML = recos
-        .map(
-          (r) => `
+        .map((r) => {
+          const name = String(r.username || r.user_id);
+          return `
         <li class="sugg">
-          <span><strong>${esc(r.username || r.user_id)}</strong>
-            <span class="muted">${r.mutual_friends} ami(s) commun(s)</span></span>
+          <span class="who">
+            <span class="avatar">${esc(name.charAt(0))}</span>
+            <span><strong>${esc(name)}</strong>
+              <span class="muted">${r.mutual_friends} ami(s) commun(s)</span></span>
+          </span>
           <button data-add="${r.user_id}">Ajouter</button>
-        </li>`
-        )
+        </li>`;
+        })
         .join("");
       suggEl.querySelectorAll("button[data-add]").forEach((btn) => {
         btn.addEventListener("click", async () => {
