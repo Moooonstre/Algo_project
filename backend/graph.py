@@ -17,7 +17,11 @@ Model
 Two representations are kept available, exactly as contrasted in LAB 6 Ex.1:
 
 * an **adjacency list** (``dict[int, set[int]]``) — the primary structure, giving
-  O(degree) neighbour iteration and O(N + E) traversals;
+  O(degree) neighbour iteration and O(N + E) traversals. Note: Lecture 8
+  presents the adjacency list as ``array[1..n] of Pvertex`` (a *sorted linked
+  list* of neighbours per vertex). We adapt it to a hash map of **sets** — the
+  Set structure of LAB 2 — for O(1) average membership/insertion; ordered output
+  is produced by sorting where needed (e.g. :meth:`SocialStore.friends`);
 * an **adjacency matrix** built on demand by :meth:`to_adjacency_matrix` — handy
   for the density / complete-graph reasoning of the LAB 9 / LAB 10 questions.
 
@@ -157,7 +161,9 @@ class SocialGraph:
         """Return every user exactly ``k`` friendship hops away from source.
 
         ``k = 1`` gives the direct friends; ``k = 2`` gives the "friends of
-        friends" used by the Social Discovery feature (slide 6). O(N + E).
+        friends" — the friend-of-friend / ``recommend_friends`` use case of
+        LAB 6 Ex.3 (the ASNAP "Social Discovery" feature builds on this).
+        Derived from :meth:`bfs_levels`, hence O(N + E).
         """
         if k < 0:
             raise ValueError("distance k must be >= 0")
@@ -218,10 +224,11 @@ class SocialGraph:
     def dfs_preorder(self, source: int) -> List[int]:
         """Return the user_ids reachable from ``source`` in DFS pre-order.
 
-        Iterative DFS with an explicit stack (Lecture 6 advises converting the
-        recursion to a loop to avoid deep call stacks on large graphs). To make
-        the order deterministic we push neighbours in descending order so the
-        smallest id is explored first. O(N + E).
+        Iterative DFS with an explicit stack — given directly in Lecture 8
+        (slide 27, ``stack.push``/``pop``) and LAB 6 Ex.2 Part B. Pushing
+        neighbours in descending order so the smallest id is explored first is
+        an implementation detail (not in the course pseudo-code) that only makes
+        the traversal order deterministic. O(N + E).
         """
         if source not in self._adj:
             raise KeyError(f"unknown user {source}")
@@ -239,13 +246,16 @@ class SocialGraph:
                     stack.append(friend)
         return order
 
-    # --- Connected components = community detection (Lecture 8) ---------------
+    # --- Connected components (Lecture 8) -------------------------------------
 
     def connected_components(self) -> List[List[int]]:
         """Partition the users into connected components (one BFS per component).
 
-        Each component is a maximal set of users mutually reachable through
-        friendships — the simplest notion of a "community" in the ASNAP brief.
+        "Connected component" is the course term (Lecture 8, slide 11: a maximal
+        connected subgraph; slides 28/32/36: found by running DFS *or* BFS from
+        each unvisited vertex). It is the closest course-defined notion to the
+        ASNAP "community" — note "community detection" itself is the brief's
+        wording, not a course term.
         Components and their members are returned sorted for reproducibility.
         Total cost is O(N + E): every node/edge is visited once across all BFS
         runs.

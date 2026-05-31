@@ -2,7 +2,8 @@
 
 > Toutes les structures de données utilisées proviennent du cours
 > *Advanced Algorithms and Programming* (II.2415).
-> Conventions de pseudo-code : règles vues en Lecture 1.
+> Conventions de pseudo-code : règles de programmation structurée vues en
+> Lecture 2 (Introduction to Advanced Algorithms), slides 10-18.
 
 ---
 

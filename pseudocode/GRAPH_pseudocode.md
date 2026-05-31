@@ -3,7 +3,10 @@
 > Toutes les structures et tous les algorithmes proviennent du cours
 > *Advanced Algorithms and Programming* (II.2415) :
 > **Lecture 8 — Graph Data Structures** et **LAB 6 — Basics of Graphs**.
-> Conventions de pseudo-code : règles vues en Lecture 1.
+> Conventions de pseudo-code : règles de programmation structurée vues en
+> **Lecture 2 (Introduction to Advanced Algorithms), slides 10-18**
+> (« Some rules for structural programming » : lisibilité, modularité, pas de
+> Goto, description avant code, contrôle de la récursion).
 > Le sujet ASNAP impose que *tous les algorithmes de graphe soient notre
 > propre implémentation* et que *le système soit bâti autour d'un modèle de
 > graphe* : c'est le rôle de ce module.
@@ -25,6 +28,12 @@ Type Graphe = Record {
 * Sommets = `user_id` (entiers), un par utilisateur inscrit.
 * Arêtes  = amitiés **non orientées** : si `a` est ami de `b`, alors `b` est
   ami de `a`.
+
+> **Adaptation assumée** : la Lecture 8 décrit la liste d'adjacence comme
+> `array[1..n] of Pvertex` (une *liste chaînée triée* de voisins par sommet).
+> Nous l'adaptons en `HashMap<Entier, Ensemble>` en réutilisant la structure
+> **Ensemble (Set)** de LAB 2, pour un accès/insertion en O(1) moyen ; la sortie
+> ordonnée (ex. liste d'amis) est obtenue par tri explicite.
 
 ### 1.2 Vue matrice d'adjacence (à la demande)
 
@@ -89,7 +98,8 @@ Fonction BFS_Niveaux(G, source) → HashMap<Entier, Entier>
 fin // BFS_Niveaux — O(N + E) : chaque sommet et chaque arête vus une fois
 ```
 
-Dérivés directs (cœur du service *Social Discovery*, slide 6) :
+Dérivés directs (base du service *Social Discovery* du sujet ASNAP — ces
+fonctions viennent de **LAB 6 Ex.3**, pas d'une slide du cours) :
 
 ```
 Fonction SommetsADistance(G, source, k) → Ensemble
@@ -131,7 +141,11 @@ fin // O(N + E)
 
 ---
 
-## 5. Parcours en profondeur — DFS (Lecture 8, conversion en boucle Lecture 6)
+## 5. Parcours en profondeur — DFS (Lecture 8 slide 27 / LAB 6 Ex.2 Part B)
+
+> La version itérative à pile explicite est donnée **directement en Lecture 8
+> (slide 27)** et en **LAB 6 Ex.2 Part B** — ce n'est pas une « conversion »
+> ajoutée de notre part.
 
 ```
 Fonction DFS_Préordre(G, source) → Liste<Entier>
@@ -152,7 +166,7 @@ fin // O(N + E)
 
 ---
 
-## 6. Détection de communautés = composantes connexes (Lecture 8)
+## 6. Composantes connexes (Lecture 8)
 
 ```
 Fonction ComposantesConnexes(G) → Liste<Liste<Entier>>
@@ -167,8 +181,10 @@ Fonction ComposantesConnexes(G) → Liste<Liste<Entier>>
 fin // O(N + E) : chaque sommet/arête visité une seule fois au total
 ```
 
-Une composante connexe = un ensemble maximal d'utilisateurs reliés entre eux
-par des amitiés ⇒ la notion la plus simple de « communauté » du sujet ASNAP.
+Une composante connexe = un sous-graphe connexe maximal (Lecture 8 slide 11),
+trouvée en lançant un parcours (DFS slide 28, ou BFS slides 32/36) depuis chaque
+sommet non visité. C'est la notion du cours la plus proche de la « communauté »
+du sujet ASNAP (« communauté » étant un terme du sujet, pas du cours).
 
 ---
 
