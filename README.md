@@ -1,77 +1,73 @@
-# Algo_project — Social Gate
+# Algo_project — Social Gate / ASNAP
 
 Projet semestriel **II.2415 — Advanced Algorithms and Programming**
 (A2-S4 2025/2026, Pr Ammar Kheirbek).
 
-Cette première itération implémente la couche **Login** de l'architecture
-Social Gate (slide 4 du sujet) : *Interface* + *Backend Interface* + une
-*Database* simple en mémoire.
+**ASNAP** (Advanced Social Network Algorithms Platform) : le moteur
+algorithmique du réseau social **Social Gate**, bâti autour d'un **modèle de
+graphe** et entièrement aligné sur la base de connaissances du cours (lectures
++ labs). Rapport complet : [`REPORT.md`](REPORT.md).
+
+> Tout le code n'utilise que la **bibliothèque standard de Python** — aucun
+> framework, aucun SGBD, aucune dépendance externe (`pip install` inutile).
+> Chaque algorithme est notre propre implémentation et cite sa source de cours.
 
 ---
 
-## Stack
+## Fonctionnalités
 
-Tout est strictement aligné sur les supports du cours et n'utilise que la
-**bibliothèque standard de Python**.
-
-| Couche                       | Choix                                  | Source cours                          |
-|------------------------------|----------------------------------------|----------------------------------------|
-| Serveur HTTP                 | `http.server` (stdlib)                 | minimal, sans framework                |
-| Index `user_id → User`       | **BST**                                | Lecture 10 / **LAB 8 Ex.1**            |
-| Index `username → user_id`   | **Hash map** (`dict`)                  | LAB 1 Ex.6 / question finale LAB 8     |
-| Index `email → user_id`      | Hash map                               | idem                                   |
-| Sessions `token → user_id`   | Hash map                               | idem                                   |
-| Hash mot de passe            | `hashlib.sha256(salt ‖ password)`      | stdlib                                 |
-| Persistance                  | Fichier JSON (type `File`, Lecture 3)  | aucun SGBD utilisé                     |
-| Frontend                     | HTML + CSS + JavaScript vanilla        | sans framework                         |
-
-Aucune dépendance externe : `pip install` n'est pas nécessaire.
+| Service (slide 5) | Algorithme principal | Source cours |
+|---|---|---|
+| **Login** | BST + hash maps | L10 / LAB8, LAB1 |
+| **Social Discovery** (reco amis) | BFS amis-d'amis (distance 2) + amis communs | L8 / LAB6 Ex.3 + LAB2 Ex.2 |
+| **Gate Timeline** (feed trié) | score de proximité + **MergeSort** | sujet s6 + LAB4 Ex.2 / L9 |
+| **Gate Settings** (filtres) | seuils de confiance | sujet s5 |
+| **Intelligence ASNAP** | communautés (composantes connexes), influenceurs (dominating set), coloring, knapsack, independent set, min cut | L8 + LAB9 + LAB10 |
 
 ---
 
 ## Lancer le serveur
 
-Depuis la racine du repo, avec Python ≥ 3.10 :
+Python ≥ 3.10, depuis la racine du repo :
 
 ```bash
 python -m backend.server --host 127.0.0.1 --port 8000
 ```
 
-Puis ouvrir <http://127.0.0.1:8000/> dans un navigateur.
+Ouvrir <http://127.0.0.1:8000/>. Pages : `/register.html`, `/login.html`,
+`/home.html` (hub), `/timeline.html`, `/discovery.html`, `/settings.html`.
 
-* `/login.html` — connexion par nom d'utilisateur **ou** email.
-* `/register.html` — inscription (username, email, prénom, nom, date de
-  naissance, mot de passe ≥ 8 caractères).
-* `/home.html` — page protégée affichant le profil courant.
+Données persistées dans `data/*.json` (créés au premier usage) :
+`users.json`, `friends.json`, `posts.json`. Supprimer ces fichiers réinitialise.
 
-Les utilisateurs sont persistés dans `data/users.json` (créé
-automatiquement au premier `register`). Pour réinitialiser la base,
-supprimer ce fichier.
+Options CLI : `--host`, `--port`, `--db` (users.json).
 
-### Options CLI
+---
 
-```
---host    adresse d'écoute (défaut 0.0.0.0)
---port    port d'écoute    (défaut 8000)
---db      chemin du fichier JSON (défaut data/users.json)
+## Tests & benchmarks
+
+```bash
+python -m unittest discover -s tests -v   # 118 tests, tous verts
+python benchmark.py                        # exact vs glouton (voir BENCHMARKS.md)
 ```
 
 ---
 
-## Lancer les tests
+## Endpoints API (JSON)
 
-```bash
-python -m unittest discover -s tests -v
-```
+| Méthode | URL | Description |
+|---|---|---|
+| POST | `/api/register` `/api/login` `/api/logout` | authentification |
+| GET | `/api/me` | profil courant |
+| POST | `/api/friends/add` `/api/friends/remove` | gérer les amitiés |
+| GET | `/api/friends` | liste d'amis |
+| GET | `/api/recommendations?min_mutual=N` | suggestions d'amis |
+| POST | `/api/posts` `/api/posts/like` `/api/posts/unlike` | posts & likes |
+| GET | `/api/timeline?min_friend_likes=N` | feed trié par score |
+| GET | `/api/communities` | composantes connexes |
+| GET | `/api/influencers` | dominating set glouton |
 
-Couvre :
-
-* `test_bst.py` — opérations BST (insert / search / delete des trois cas /
-  in-order trié / arbre dégénéré).
-* `test_auth.py` — hash + sel aléatoire + comparaison constante + unicité
-  des tokens de session sur 2 000 tirages.
-* `test_user_store.py` — validation des champs, duplicates, authentification
-  par username **ou** email, round-trip JSON.
+Cookie `session` `HttpOnly; SameSite=Strict`.
 
 ---
 
@@ -79,65 +75,39 @@ Couvre :
 
 ```
 backend/
-  bst.py         BST (LAB 8 Ex.1) — clé entière, valeur opaque
-  auth.py        hash mot de passe + SessionStore (hash map)
-  user_store.py  BST + 2 hash maps + persistance JSON
-  server.py      http.server : /api/register, /api/login, /api/logout, /api/me
-frontend/
-  index.html     redirection /login si pas connecté, /home sinon
-  login.html     formulaire de connexion
-  register.html  formulaire d'inscription
-  home.html      page protégée + bouton de déconnexion
-  styles.css     style minimaliste (sombre)
-  app.js         glue fetch() pour les 3 pages
-pseudocode/
-  AUTH_pseudocode.md   pseudo-code commenté selon les règles de la Lecture 1
-tests/
-  test_bst.py
-  test_auth.py
-  test_user_store.py
+  bst.py            BST (L10 / LAB8)
+  auth.py           hash mot de passe + SessionStore
+  user_store.py     BST + hash maps + persistance JSON
+  graph.py          SocialGraph : liste+matrice d'adjacence, BFS, DFS, composantes (L8/LAB6)
+  social_store.py   bridge users <-> graphe + persistance amitiés
+  recommendation.py amis communs + amis-d'amis (LAB2 Ex2 / LAB6 Ex3)
+  feed.py           score de proximité + MergeSort (sujet s6 / LAB4 / L9)
+  filters.py        seuils de confiance (sujet s5)
+  hard_problems.py  LAB9/LAB10 : dominating set, coloring, knapsack, independent set, min cut
+  datasets.py       générateurs de graphes (tailles variées)
+  server.py         http.server : toutes les routes JSON + service statique
+frontend/           index/login/register/home/timeline/discovery/settings + app.js + styles.css
+pseudocode/         pseudo-code (règles Lecture 2) : AUTH, GRAPH, RECO, FEED, SETTINGS, HARDPROBLEMS
+tests/              8 fichiers de tests unittest
+benchmark.py        mesures de performance      BENCHMARKS.md  résultats
+REPORT.md           rapport final
 ```
 
 ---
 
-## Endpoints
+## Alignement cours & authenticité
 
-| Méthode | URL              | Corps JSON                                                                                  | Réponse                          |
-|---------|------------------|---------------------------------------------------------------------------------------------|----------------------------------|
-| POST    | `/api/register`  | `{username, email, first_name, last_name, birth_date, password}`                            | `201 {user}` + cookie `session`  |
-| POST    | `/api/login`     | `{username | email, password}`                                                              | `200 {user}` + cookie `session`  |
-| POST    | `/api/logout`    | —                                                                                           | `200 {ok: true}`                 |
-| GET     | `/api/me`        | —                                                                                           | `200 {user}` ou `401`            |
-
-Le cookie `session` est `HttpOnly; SameSite=Strict` ; côté frontend, toutes
-les requêtes utilisent `credentials: "same-origin"`.
+Chaque module a été audité contre les **vrais PDF du cours**. Les éléments qui
+relèvent du **sujet** (score de proximité ami=10/inconnu=1, seuils de confiance)
+ou de **choix d'implémentation** (persistance JSON, stabilité du MergeSort) sont
+explicitement étiquetés comme tels et jamais présentés comme « issus du cours ».
+Détails dans [`REPORT.md`](REPORT.md) §6.
 
 ---
 
-## Complexité (résumé)
+## Divergence assumée : MySQL
 
-Pour `n` utilisateurs en base :
-
-| Opération          | Moyenne      | Pire cas |
-|--------------------|--------------|----------|
-| Inscription        | O(log n)     | O(n)     |
-| Connexion          | O(log n)     | O(n)     |
-| Déconnexion        | O(1)         | O(1)     |
-| `/api/me`          | O(log n)     | O(n)     |
-| Sauvegarde / chargement JSON | O(n) | O(n)     |
-
-Détails et justification dans
-[`pseudocode/AUTH_pseudocode.md`](pseudocode/AUTH_pseudocode.md).
-
----
-
-## Limites volontaires
-
-* Pas de réinitialisation de mot de passe ni de vérification d'email
-  (hors-cours).
-* Pas de MySQL : la persistance JSON est un placeholder pédagogique. Le
-  passage à MySQL est prévu pour une itération ultérieure (cf. slide 7
-  du sujet) — l'interface `UserStore` est volontairement compatible avec
-  un backend SQL.
-* La BST n'est pas auto-rééquilibrante. Une montée à un AVL (Lecture 10
-  slides 21–26) est triviale puisque la signature de `BST` est isolée.
+Le sujet (slide 7) mentionne MySQL, mais le cours ne couvre aucun SGBD. La
+persistance utilise donc le type **`File`** (Lecture 3, slide 30) — fichiers
+JSON. La logique de stockage est isolée dans les `*Store`, rendant un futur
+passage à MySQL trivial.

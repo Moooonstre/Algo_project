@@ -36,9 +36,11 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 12px 16px;
   margin-bottom: 16px;
   border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
 }
 
 .brand {
@@ -51,6 +53,30 @@ body {
   color: transparent;
 }
 
+.mainnav {
+  display: flex;
+  gap: 14px;
+  flex: 1;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.mainnav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mainnav a:hover {
+  color: var(--text);
+}
+
+.mainnav a.active {
+  color: var(--accent);
+  font-weight: 700;
+}
+
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -59,6 +85,11 @@ body {
   width: 100%;
   max-width: 480px;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+
+/* Pages with the main navigation are content-heavy -> wider card. */
+body:has(.mainnav) .card {
+  max-width: 720px;
 }
 
 .card h2 {
@@ -96,6 +127,17 @@ input:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.25);
+}
+
+textarea {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical;
 }
 
 button {
@@ -179,4 +221,173 @@ a {
   margin: 0;
   font-size: 15px;
   word-break: break-all;
+}
+
+/* --- Home hub ------------------------------------------------------------ */
+.hub {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.hub-tile {
+  display: block;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  transition: border-color 0.15s ease, transform 0.05s ease;
+}
+
+.hub-tile:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.hub-tile h2 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.hub-tile p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.intel-box {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+}
+
+.intel-box ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+/* --- Timeline ------------------------------------------------------------ */
+.post-form {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.post-form textarea {
+  flex: 1;
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(124, 92, 255, 0.15);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.post {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.post header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.post .score {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.post p {
+  margin: 6px 0 10px;
+}
+
+.post footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.post footer button {
+  padding: 6px 12px;
+  font-size: 13px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.post footer button.liked {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* --- Discovery ----------------------------------------------------------- */
+.inline-form {
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.inline-form input {
+  flex: 1;
+}
+
+.sugg-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sugg {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.sugg button {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* --- Settings ------------------------------------------------------------ */
+.setting {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.setting input[type="range"] {
+  width: 100%;
+  padding: 0;
 }
