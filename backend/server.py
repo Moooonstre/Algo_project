@@ -30,6 +30,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from .auth import SessionStore
+from .social_store import FriendshipError, SocialStore
 from .user_store import (
     DuplicateUserError,
     UserStore,
@@ -39,10 +40,15 @@ from .user_store import (
 
 SESSION_COOKIE = "session"
 DEFAULT_DB = Path(__file__).resolve().parent.parent / "data" / "users.json"
+DEFAULT_FRIENDS_DB = (
+    Path(__file__).resolve().parent.parent / "data" / "friends.json"
+)
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 
-def make_handler(user_store: UserStore, sessions: SessionStore):
+def make_handler(
+    user_store: UserStore, sessions: SessionStore, social: SocialStore
+):
     class Handler(BaseHTTPRequestHandler):
         server_version = "SocialGateLogin/0.1"
 
@@ -116,11 +122,17 @@ def make_handler(user_store: UserStore, sessions: SessionStore):
                     self._handle_login()
                 elif path == "/api/logout":
                     self._handle_logout()
+                elif path == "/api/friends/add":
+                    self._handle_add_friend()
+                elif path == "/api/friends/remove":
+                    self._handle_remove_friend()
                 else:
                     self._send_json(
                         HTTPStatus.NOT_FOUND, {"error": "unknown endpoint"}
                     )
             except ValidationError as exc:
+                self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
+            except FriendshipError as exc:
                 self._send_json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
             except DuplicateUserError as exc:
                 self._send_json(HTTPStatus.CONFLICT, {"error": str(exc)})
@@ -136,6 +148,8 @@ def make_handler(user_store: UserStore, sessions: SessionStore):
             try:
                 if path == "/api/me":
                     self._handle_me()
+                elif path == "/api/friends":
+                    self._handle_list_friends()
                 else:
                     self._serve_static(path)
             except Exception:
@@ -150,6 +164,7 @@ def make_handler(user_store: UserStore, sessions: SessionStore):
         def _handle_register(self) -> None:
             payload = self._read_json_body()
             user = user_store.register(payload)
+            social.ensure_user(user.user_id)  # every user is a graph node
             token = sessions.create(user.user_id)
             self._send_json(
                 HTTPStatus.CREATED,
@@ -195,6 +210,55 @@ def make_handler(user_store: UserStore, sessions: SessionStore):
                 return
             self._send_json(HTTPStatus.OK, {"user": user.public_dict()})
 
+        # --- friendships (Bloc A: social graph) ---------------------------
+
+        def _require_friend_id(self, payload: dict) -> int:
+            friend_id = payload.get("friend_id")
+            if isinstance(friend_id, bool) or not isinstance(friend_id, int):
+                raise ValidationError("friend_id (integer) is required")
+            return friend_id
+
+        def _handle_add_friend(self) -> None:
+            _token, user = self._current_user()
+            if user is None:
+                self._send_json(
+                    HTTPStatus.UNAUTHORIZED, {"error": "not authenticated"}
+                )
+                return
+            payload = self._read_json_body()
+            friend_id = self._require_friend_id(payload)
+            created = social.add_friend(user.user_id, friend_id)
+            self._send_json(
+                HTTPStatus.OK,
+                {"created": created, "friends": social.friends(user.user_id)},
+            )
+
+        def _handle_remove_friend(self) -> None:
+            _token, user = self._current_user()
+            if user is None:
+                self._send_json(
+                    HTTPStatus.UNAUTHORIZED, {"error": "not authenticated"}
+                )
+                return
+            payload = self._read_json_body()
+            friend_id = self._require_friend_id(payload)
+            removed = social.remove_friend(user.user_id, friend_id)
+            self._send_json(
+                HTTPStatus.OK,
+                {"removed": removed, "friends": social.friends(user.user_id)},
+            )
+
+        def _handle_list_friends(self) -> None:
+            _token, user = self._current_user()
+            if user is None:
+                self._send_json(
+                    HTTPStatus.UNAUTHORIZED, {"error": "not authenticated"}
+                )
+                return
+            self._send_json(
+                HTTPStatus.OK, {"friends": social.friends(user.user_id)}
+            )
+
         # --- static files -------------------------------------------------
 
         def _serve_static(self, path: str) -> None:
@@ -230,11 +294,14 @@ def make_handler(user_store: UserStore, sessions: SessionStore):
 
 
 def build_server(
-    host: str, port: int, db_path: Path
+    host: str, port: int, db_path: Path, friends_db_path: Path | None = None
 ) -> tuple[ThreadingHTTPServer, UserStore]:
     user_store = UserStore(db_path)
     sessions = SessionStore()
-    handler_cls = make_handler(user_store, sessions)
+    social = SocialStore(friends_db_path or DEFAULT_FRIENDS_DB)
+    # Seed the graph with every existing user so they are all nodes.
+    social.sync_users(u.user_id for u in user_store.all_users())
+    handler_cls = make_handler(user_store, sessions, social)
     httpd = ThreadingHTTPServer((host, port), handler_cls)
     return httpd, user_store
 
