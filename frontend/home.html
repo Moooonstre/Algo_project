@@ -9,10 +9,38 @@
   <body>
     <header class="topbar">
       <span class="brand">Social Gate</span>
+      <nav class="mainnav">
+        <a href="/home.html" class="active">Accueil</a>
+        <a href="/timeline.html">Gate Timeline</a>
+        <a href="/discovery.html">Social Discovery</a>
+        <a href="/settings.html">Gate Settings</a>
+      </nav>
       <button id="logout-btn" class="ghost">Se déconnecter</button>
     </header>
     <main class="card">
       <h1>Bienvenue, <span id="display-name">…</span></h1>
+
+      <div class="hub">
+        <a class="hub-tile" href="/timeline.html">
+          <h2>Gate Timeline</h2>
+          <p>Feed trié par score de proximité (MergeSort).</p>
+        </a>
+        <a class="hub-tile" href="/discovery.html">
+          <h2>Social Discovery</h2>
+          <p>Recommandation d'amis par amis communs (BFS distance 2).</p>
+        </a>
+        <a class="hub-tile" href="/settings.html">
+          <h2>Gate Settings</h2>
+          <p>Seuils de confiance (likes d'amis, amis communs).</p>
+        </a>
+      </div>
+
+      <section class="intel-box">
+        <h2>Intelligence du réseau (ASNAP)</h2>
+        <ul id="intel"><li class="muted">Analyse en cours…</li></ul>
+      </section>
+
+      <h2>Mon profil</h2>
       <dl class="profile">
         <dt>Nom d'utilisateur</dt>
         <dd id="p-username"></dd>
@@ -25,11 +53,6 @@
         <dt>Membre depuis</dt>
         <dd id="p-created"></dd>
       </dl>
-      <p class="muted">
-        Cette page est la base sur laquelle viendront se brancher les services
-        Social Gate (timeline, recommandations, filtres) au fur et à mesure
-        des prochaines itérations du projet.
-      </p>
     </main>
     <script src="/app.js"></script>
     <script>

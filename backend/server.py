@@ -35,6 +35,7 @@ from .filters import (
     filter_by_friend_like_threshold,
     filter_recommendations_by_mutual,
 )
+from .hard_problems import detect_communities, find_fast_coverage
 from .posts import PostError, PostStore
 from .recommendation import recommend_friends
 from .social_store import FriendshipError, SocialStore
@@ -185,6 +186,10 @@ def make_handler(
                     self._handle_recommendations()
                 elif path == "/api/timeline":
                     self._handle_timeline()
+                elif path == "/api/communities":
+                    self._handle_communities()
+                elif path == "/api/influencers":
+                    self._handle_influencers()
                 else:
                     self._serve_static(path)
             except Exception:
@@ -393,6 +398,46 @@ def make_handler(
                     entry["author_name"] = pub["first_name"] + " " + pub["last_name"]
                 payload.append(entry)
             self._send_json(HTTPStatus.OK, {"timeline": payload})
+
+        # --- ASNAP intelligence demo (Bloc E algorithms over the API) -----
+
+        def _label(self, user_id: int) -> str:
+            u = user_store.find_by_id(user_id)
+            return u.username if u is not None else str(user_id)
+
+        def _handle_communities(self) -> None:
+            _token, user = self._current_user()
+            if user is None:
+                self._send_json(
+                    HTTPStatus.UNAUTHORIZED, {"error": "not authenticated"}
+                )
+                return
+            # Connected components = communities (Lecture 8).
+            comps = detect_communities(social.graph)
+            payload = [
+                {"members": comp, "usernames": [self._label(u) for u in comp]}
+                for comp in comps
+            ]
+            self._send_json(HTTPStatus.OK, {"communities": payload})
+
+        def _handle_influencers(self) -> None:
+            _token, user = self._current_user()
+            if user is None:
+                self._send_json(
+                    HTTPStatus.UNAUTHORIZED, {"error": "not authenticated"}
+                )
+                return
+            # Greedy minimum dominating set (LAB 9 Ex.1): a small set of users
+            # that reaches everyone in 1 hop.
+            size, selected = find_fast_coverage(social.graph)
+            self._send_json(
+                HTTPStatus.OK,
+                {
+                    "size": size,
+                    "influencers": selected,
+                    "usernames": [self._label(u) for u in selected],
+                },
+            )
 
         # --- static files -------------------------------------------------
 

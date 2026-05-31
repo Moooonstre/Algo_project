@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gate Settings - Social Gate</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <span class="brand">Social Gate</span>
+      <nav class="mainnav">
+        <a href="/home.html">Accueil</a>
+        <a href="/timeline.html">Gate Timeline</a>
+        <a href="/discovery.html">Social Discovery</a>
+        <a href="/settings.html" class="active">Gate Settings</a>
+      </nav>
+      <button id="logout-btn" class="ghost">Se déconnecter</button>
+    </header>
+    <main class="card">
+      <h1>Gate Settings</h1>
+      <p class="muted">
+        Filtres de confiance. Les seuils sont appliqués à la timeline et aux
+        suggestions (paramètres <code>min_friend_likes</code> et
+        <code>min_mutual</code> envoyés à l'API).
+      </p>
+
+      <div class="setting">
+        <label for="min-friend-likes">
+          Seuil de confiance — likes d'amis minimum par post :
+          <strong id="min-friend-likes-out">0</strong>
+        </label>
+        <input id="min-friend-likes" type="range" min="0" max="5" step="1" />
+      </div>
+
+      <div class="setting">
+        <label for="min-mutual">
+          Suggestions — amis communs minimum :
+          <strong id="min-mutual-out">0</strong>
+        </label>
+        <input id="min-mutual" type="range" min="0" max="5" step="1" />
+      </div>
+
+      <p class="muted">Réglages enregistrés automatiquement dans le navigateur.</p>
+    </main>
+    <script src="/app.js"></script>
+    <script>
+      SocialGate.bootSettingsPage();
+    </script>
+  </body>
+</html>

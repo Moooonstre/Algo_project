@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gate Timeline - Social Gate</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <span class="brand">Social Gate</span>
+      <nav class="mainnav">
+        <a href="/home.html">Accueil</a>
+        <a href="/timeline.html" class="active">Gate Timeline</a>
+        <a href="/discovery.html">Social Discovery</a>
+        <a href="/settings.html">Gate Settings</a>
+      </nav>
+      <button id="logout-btn" class="ghost">Se déconnecter</button>
+    </header>
+    <main class="card">
+      <h1>Gate Timeline</h1>
+      <p class="muted">
+        Feed trié du plus pertinent au moins pertinent par <strong>score de
+        proximité</strong> (like d'un ami = 10, like d'un inconnu = 1), classé
+        avec notre <strong>MergeSort</strong>.
+        <span id="threshold-badge" class="badge"></span>
+      </p>
+
+      <form id="post-form" class="post-form">
+        <textarea id="post-content" rows="2" maxlength="500"
+          placeholder="Quoi de neuf ?"></textarea>
+        <button type="submit">Publier</button>
+      </form>
+
+      <section id="feed" class="feed"></section>
+    </main>
+    <script src="/app.js"></script>
+    <script>
+      SocialGate.bootTimelinePage();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Social Discovery - Social Gate</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <span class="brand">Social Gate</span>
+      <nav class="mainnav">
+        <a href="/home.html">Accueil</a>
+        <a href="/timeline.html">Gate Timeline</a>
+        <a href="/discovery.html" class="active">Social Discovery</a>
+        <a href="/settings.html">Gate Settings</a>
+      </nav>
+      <button id="logout-btn" class="ghost">Se déconnecter</button>
+    </header>
+    <main class="card">
+      <h1>Social Discovery</h1>
+      <p class="muted">
+        Suggestions = <strong>amis d'amis</strong> (BFS distance 2) classés par
+        nombre d'<strong>amis communs</strong> (intersection d'ensembles).
+        <span id="mutual-badge" class="badge"></span>
+      </p>
+
+      <h2>Mes amis (id)</h2>
+      <p id="friends" class="muted">…</p>
+
+      <form id="add-friend-form" class="inline-form">
+        <input id="friend-id" type="number" min="1" placeholder="id d'un utilisateur" />
+        <button type="submit">Ajouter en ami</button>
+      </form>
+
+      <h2>Suggestions</h2>
+      <ul id="suggestions" class="sugg-list"></ul>
+    </main>
+    <script src="/app.js"></script>
+    <script>
+      SocialGate.bootDiscoveryPage();
+    </script>
+  </body>
+</html>
