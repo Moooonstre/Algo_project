@@ -109,8 +109,10 @@ d'agents). Corrections apportées suite aux audits :
   (le cours ne traite pas la stabilité) ;
 * classification P/NP-Hard rattachée honnêtement à la Lecture 11 (Dominating
   Set / Independent Set / Min Cut non cités tels quels → rattachés à
-  Vertex Cover / Clique ; le min-cut **non contraint** est P, c'est la
-  contrainte d'équilibre 40 % qui le rend NP-Hard) ;
+  Vertex Cover / Clique. *Hors cours* (théorie de la complexité générale, non
+  énoncée dans la Lecture 11) : le min-cut **non contraint** est polynomial —
+  dual du max-flow, lui cité en P dans la Lecture 11 — et c'est la contrainte
+  d'**équilibre 40 %** qui rend notre version NP-Hard) ;
 * éléments hors-cours (score de proximité, seuils, persistance JSON) étiquetés
   **sujet ASNAP** ou **choix d'implémentation**, jamais présentés comme « cours ».
 
