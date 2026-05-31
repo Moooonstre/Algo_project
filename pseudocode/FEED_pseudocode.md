@@ -59,9 +59,18 @@ Fonction Fusion(g, d, clé, décroissant) → Liste
 fin
 ```
 
-> Diviser pour régner (Lecture 9) : on coupe en deux moitiés, on trie chacune
+> Diviser pour régner (Lecture 9 slide 8 : classification + « divide into halves,
+> conquer recursively, merge ») : on coupe en deux moitiés, on trie chacune
 > récursivement, puis on fusionne deux listes déjà triées en temps linéaire.
-> Stable : à clé égale, l'élément de gauche passe d'abord.
+>
+> **Précisions d'honnêteté** : le cours ne donne ni le pseudo-code de MergeSort
+> (slide 8 = simple ligne de table) ni la procédure de fusion ; LAB 4 Ex.2 en
+> donne seulement la signature (`merge_sort_by_engagement` + `merge`). Ce
+> pseudo-code détaillé est donc **notre rédaction** de cette spécification. De
+> même, la **stabilité** (à clé égale, l'élément de gauche passe d'abord) est une
+> **propriété que nous démontrons sur notre fusion** — le cours ne traite pas la
+> stabilité des tris. C'est cette propriété qui rend le tri multi-critères du §3
+> correct.
 
 ---
 

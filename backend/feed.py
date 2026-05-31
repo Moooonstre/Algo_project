@@ -57,9 +57,15 @@ def merge_sort(
 ) -> List[T]:
     """Sort ``items`` with our own Divide & Conquer MergeSort.
 
-    Stable. Divide the list into halves, sort each recursively, then merge
-    (Lecture 9 classification of Merge Sort; LAB 4 Ex.2 ``merge_sort_by_*``).
-    Time O(n log n), space O(n). ``reverse=True`` sorts in descending key order.
+    Divide the list into halves, sort each recursively, then merge. The course
+    gives only the *classification/spec* of Merge Sort (Lecture 9 slide 8:
+    "divide into halves, conquer recursively, merge", O(n log n)) and the LAB 4
+    Ex.2 signature (``merge_sort_by_engagement`` + ``merge``) — no merge
+    pseudo-code — so this is our own realization of that spec. Time O(n log n),
+    space O(n). The merge keeps the sort *stable* (left wins on ties): this is a
+    property of our implementation that we rely on for the timeline tie-break;
+    note the course material does not discuss sort stability. ``reverse=True``
+    sorts in descending key order.
     """
     if len(items) <= 1:
         return list(items)
