@@ -27,10 +27,14 @@ from http import HTTPStatus
 from http.cookies import SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from .auth import SessionStore
 from .feed import proximity_score, rank_timeline
+from .filters import (
+    filter_by_friend_like_threshold,
+    filter_recommendations_by_mutual,
+)
 from .posts import PostError, PostStore
 from .recommendation import recommend_friends
 from .social_store import FriendshipError, SocialStore
@@ -106,6 +110,16 @@ def make_handler(
             if user_id is None:
                 return None, None
             return token, user_store.find_by_id(user_id)
+
+        def _query_int(self, name: str, default: int) -> int:
+            """Read an integer query-string parameter, falling back to default."""
+            values = parse_qs(urlparse(self.path).query).get(name)
+            if not values:
+                return default
+            try:
+                return int(values[0])
+            except (TypeError, ValueError):
+                return default
 
         def _set_session_cookie(self, token: str) -> tuple[str, str]:
             return (
@@ -292,6 +306,9 @@ def make_handler(
             # friends of friends, ranked by mutual-friend count (LAB6 Ex.3 +
             # LAB2 Ex.2). Enrich each suggestion with the public profile.
             suggestions = recommend_friends(social.graph, user.user_id, limit=20)
+            # Gate Settings: optional mutual-friends threshold (slide 5).
+            min_mutual = self._query_int("min_mutual", 0)
+            suggestions = filter_recommendations_by_mutual(suggestions, min_mutual)
             payload = []
             for s in suggestions:
                 profile = user_store.find_by_id(s.user_id)
@@ -358,6 +375,12 @@ def make_handler(
             # Score-sorted feed: all posts ranked by proximity score for this
             # viewer (project slide 6), ordered with our MergeSort (LAB4/L9).
             ranked = rank_timeline(posts.all_posts(), user.user_id, social.graph)
+            # Gate Settings: optional confidence threshold = minimum number of
+            # likes coming from the viewer's friends (slide 5).
+            min_friend_likes = self._query_int("min_friend_likes", 0)
+            ranked = filter_by_friend_like_threshold(
+                ranked, user.user_id, social.graph, min_friend_likes
+            )
             payload = []
             for post, score in ranked:
                 author = user_store.find_by_id(post.author_id)
