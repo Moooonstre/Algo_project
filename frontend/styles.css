@@ -47,10 +47,42 @@ body {
   font-weight: 700;
   font-size: 20px;
   letter-spacing: 0.4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: linear-gradient(90deg, #a78bff, #7c5cff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Social Gate identity: the spade "SG" mark from the presentation. */
+.brand::before {
+  content: "\2660"; /* spade */
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #7c5cff, #a78bff);
+  color: #fff;
+  font-size: 16px;
+  -webkit-text-fill-color: #fff;
+}
+
+/* avatar = coloured circle with the user's initial */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6a4cef, #a78bff);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
 }
 
 .mainnav {
@@ -309,9 +341,25 @@ a {
 
 .post header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
   margin-bottom: 6px;
+}
+
+.post header .who {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.post header .score {
+  margin-left: auto;
+}
+
+.sugg .who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .post .score {
