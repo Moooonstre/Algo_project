@@ -30,6 +30,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from .auth import SessionStore
+from .recommendation import recommend_friends
 from .social_store import FriendshipError, SocialStore
 from .user_store import (
     DuplicateUserError,
@@ -150,6 +151,8 @@ def make_handler(
                     self._handle_me()
                 elif path == "/api/friends":
                     self._handle_list_friends()
+                elif path == "/api/recommendations":
+                    self._handle_recommendations()
                 else:
                     self._serve_static(path)
             except Exception:
@@ -258,6 +261,30 @@ def make_handler(
             self._send_json(
                 HTTPStatus.OK, {"friends": social.friends(user.user_id)}
             )
+
+        # --- Social Discovery (Bloc B: friend recommendation) -------------
+
+        def _handle_recommendations(self) -> None:
+            _token, user = self._current_user()
+            if user is None:
+                self._send_json(
+                    HTTPStatus.UNAUTHORIZED, {"error": "not authenticated"}
+                )
+                return
+            # friends of friends, ranked by mutual-friend count (LAB6 Ex.3 +
+            # LAB2 Ex.2). Enrich each suggestion with the public profile.
+            suggestions = recommend_friends(social.graph, user.user_id, limit=20)
+            payload = []
+            for s in suggestions:
+                profile = user_store.find_by_id(s.user_id)
+                entry = {"user_id": s.user_id, "mutual_friends": s.mutual_friends}
+                if profile is not None:
+                    pub = profile.public_dict()
+                    entry["username"] = pub["username"]
+                    entry["first_name"] = pub["first_name"]
+                    entry["last_name"] = pub["last_name"]
+                payload.append(entry)
+            self._send_json(HTTPStatus.OK, {"recommendations": payload})
 
         # --- static files -------------------------------------------------
 
