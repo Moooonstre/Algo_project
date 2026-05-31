@@ -31,7 +31,7 @@ from typing import Dict, List, Optional, Sequence, Set, Tuple
 from .graph import SocialGraph
 
 # Brute force over all subsets is only feasible for small N (LAB 9: N <= 20).
-BRUTE_FORCE_MAX_NODES = 22
+BRUTE_FORCE_MAX_NODES = 20
 
 
 # =============================================================================
@@ -241,6 +241,22 @@ def fast_alternative_strategy(
     return total_inf, sorted(selected)
 
 
+# LAB 10 Ex.2 ("Viral Message Timing") requires these exact names; they are the
+# same 0/1 knapsack as LAB 9 Ex.3 ("reaches" is the lab's name for "influences").
+def maximize_reach_exact(
+    budget: int, costs: Sequence[int], reaches: Sequence[int]
+) -> Tuple[int, List[int]]:
+    """LAB 10 Ex.2 exact DP knapsack — alias of :func:`maximize_reach`."""
+    return maximize_reach(budget, costs, reaches)
+
+
+def maximize_reach_greedy(
+    budget: int, costs: Sequence[int], reaches: Sequence[int]
+) -> Tuple[int, List[int]]:
+    """LAB 10 Ex.2 greedy ratio knapsack — alias of :func:`fast_alternative_strategy`."""
+    return fast_alternative_strategy(budget, costs, reaches)
+
+
 # =============================================================================
 # LAB 10 Ex.1 — Event Invitation = maximum independent set
 # =============================================================================
@@ -345,6 +361,11 @@ def find_balanced_partition_greedy(
     Start from a balanced split (each group >= 40% of users), then repeatedly
     move a single user to the other group if it reduces the number of cross
     edges while keeping the balance. Stops at a local optimum.
+
+    The lab calls for a *random* initial split; the randomness lives in
+    :func:`find_balanced_partition_local_search`, which calls this with random
+    ``initial`` splits. Called directly without ``initial`` it uses a
+    deterministic balanced split (first half / second half) for reproducibility.
     """
     nodes = sorted(graph.users())
     n = len(nodes)

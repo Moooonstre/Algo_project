@@ -4,9 +4,8 @@
 > dominating set ; Conflict-Free Labeling = graph coloring ; Ad Campaign =
 > knapsack) et **LAB 10** (Event Invitation = max independent set ; Viral
 > Message = knapsack ; Group Formation = balanced min cut). Concepts de
-> complexité (P / NP / NP-Complete / NP-Hard, vérification vs construction,
-> diviser-pour-régner, DP, glouton, backtracking) : **Lecture 11 (Advanced
-> Algorithm Complexity)** et **Lecture 9**.
+> complexité (P / NP / NP-Complete / NP-Hard, vérification vs construction) :
+> **Lecture 11 (Advanced Algorithm Complexity)**.
 > Détection de communautés = composantes connexes (Lecture 8) — voir
 > `GRAPH_pseudocode.md`. Conventions de pseudo-code : **Lecture 2, slides 10-18**.
 
@@ -189,14 +188,14 @@ fin
 
 ## 6. Classification (questions d'intégration LAB 9 / LAB 10, Lecture 11)
 
-| Problème (exercice)                         | Vérification | Optimisation     |
-|---------------------------------------------|--------------|------------------|
-| Dominating set (LAB 9 Ex.1)                 | P (O(N+E))   | **NP-Hard**      |
-| Graph coloring (LAB 9 Ex.2)                 | P (O(E))     | **NP-Hard** (k≥3 décision NP-Complete) |
-| 0/1 Knapsack (LAB 9 Ex.3 / LAB 10 Ex.2)     | P (O(N))     | **NP-Hard** (décision NP-Complete ; DP pseudo-poly) |
-| Max independent set (LAB 10 Ex.1)           | P (O(k²))    | **NP-Hard**      |
-| Balanced min cut (LAB 10 Ex.3)              | P (O(E))     | **NP-Hard**      |
-| Composantes connexes (communautés)          | —            | **P** (O(N+E))   |
+| Problème (exercice)                         | Vérification | Optimisation     | Appui cours |
+|---------------------------------------------|--------------|------------------|-------------|
+| Dominating set (LAB 9 Ex.1)                 | P (O(N+E))   | **NP-Hard**      | non cité en L11 ; rattaché au **Vertex Cover** (NP-Complete, L11 slides 14/18 — LAB 9 « Vertex Cover variant ») |
+| Graph coloring (LAB 9 Ex.2)                 | P (O(E))     | **NP-Hard** (k≥3 décision NP-Complete) | **L11 slides 10/14/18** (réduction depuis 3-SAT) |
+| 0/1 Knapsack (LAB 9 Ex.3 / LAB 10 Ex.2)     | P (O(N))     | **NP-Hard** (décision NP-Complete ; DP pseudo-poly) | **L11 slide 18** (réduction depuis Subset Sum) |
+| Max independent set (LAB 10 Ex.1)           | P (O(k²))    | **NP-Hard**      | non cité en L11 ; équivalent à **Clique** / complément du **Vertex Cover** (L11 slides 14/18) |
+| Balanced min cut (LAB 10 Ex.3)              | P (O(E))     | **NP-Hard** *(à cause de la contrainte d'équilibre)* | non cité en L11 ; le min-cut **non contraint** est P (dual du max-flow, L11 slide 12) — c'est l'équilibre 40 % qui rend NP-Hard |
+| Composantes connexes (communautés)          | —            | **P** (O(N+E))   | classe P (L11) ; parcours de graphe (L8) |
 
 > **Vérification facile vs construction difficile** : pour tous ces problèmes,
 > vérifier une solution candidate est polynomial (colonne « Vérification »),

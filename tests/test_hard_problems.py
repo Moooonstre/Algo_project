@@ -30,6 +30,8 @@ from backend.hard_problems import (
     is_valid_labeling,
     is_within_budget,
     maximize_reach,
+    maximize_reach_exact,
+    maximize_reach_greedy,
 )
 
 
@@ -119,6 +121,18 @@ class KnapsackTest(unittest.TestCase):
         greedy, _ = fast_alternative_strategy(budget, costs, infs)
         self.assertEqual(exact, 12)
         self.assertLess(greedy, exact)
+
+    def test_lab10_aliases_match(self):
+        # LAB10 Ex.2 names delegate to the LAB9 Ex.3 implementations
+        costs, reaches, budget = [2, 3, 4, 5], [3, 4, 5, 6], 5
+        self.assertEqual(
+            maximize_reach_exact(budget, costs, reaches),
+            maximize_reach(budget, costs, reaches),
+        )
+        self.assertEqual(
+            maximize_reach_greedy(budget, costs, reaches),
+            fast_alternative_strategy(budget, costs, reaches),
+        )
 
 
 class IndependentSetTest(unittest.TestCase):
