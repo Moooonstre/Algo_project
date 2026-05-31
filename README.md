@@ -40,6 +40,15 @@ Ouvrir <http://127.0.0.1:8000/>. Pages : `/register.html`, `/login.html`,
 Données persistées dans `data/*.json` (créés au premier usage) :
 `users.json`, `friends.json`, `posts.json`. Supprimer ces fichiers réinitialise.
 
+**Données de démo** (pour une présentation déjà peuplée) :
+
+```bash
+python -m backend.seed_demo --reset   # 8 users, 2 communautés, posts + likes
+```
+
+Connexion ensuite avec n'importe quel prénom (`alice`, `bob`, …) et le mot de
+passe `password1`. Penser à redémarrer le serveur après le seed.
+
 Options CLI : `--host`, `--port`, `--db` (users.json).
 
 ---
