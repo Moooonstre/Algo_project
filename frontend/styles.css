@@ -1,18 +1,23 @@
+/* Social Gate — thème clair "Pro & Perso" façon Facebook / LinkedIn.
+ * Réseau hybride professionnel + personnel. Palette : bleu Facebook #1877F2,
+ * fond gris clair #F0F2F5, cartes blanches. Identité Social Gate conservée
+ * (logo pique SG, accent orange ISEP). 100% CSS, aucun framework. */
+
 :root {
-  color-scheme: light dark;
-  --bg: #0f1115;
-  --card: #181b22;
-  --card-2: #1e222b;
-  --text: #e8eaed;
-  --muted: #9aa0a6;
-  --accent: #7c5cff;
-  --accent-hover: #6a4cef;
-  --error: #ff6b6b;
-  --border: #2a2f3a;
-  --radius: 12px;
-  --pad: 24px;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --card-2: #f7f8fa;
+  --text: #1c1e21;
+  --muted: #65676b;
+  --primary: #1877f2;
+  --primary-hover: #166fe5;
+  --accent: #f5a623; /* orange ISEP / Social Gate */
+  --error: #d93025;
+  --border: #dadde1;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
 }
 
 * {
@@ -22,72 +27,55 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(160deg, #0f1115, #161924);
+  background: var(--bg);
   color: var(--text);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px 16px;
 }
 
+/* --- Top navbar (fixe façon Facebook) ----------------------------------- */
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   width: 100%;
-  max-width: 720px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
+  background: var(--card);
   border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  margin-bottom: 22px;
 }
 
 .brand {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 20px;
-  letter-spacing: 0.4px;
+  color: var(--primary);
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(90deg, #a78bff, #7c5cff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  white-space: nowrap;
 }
 
-/* Social Gate identity: the spade "SG" mark from the presentation. */
+/* logo pique "SG" de la présentation */
 .brand::before {
-  content: "\2660"; /* spade */
+  content: "\2660";
   display: inline-grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #7c5cff, #a78bff);
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--primary);
   color: #fff;
-  font-size: 16px;
-  -webkit-text-fill-color: #fff;
-}
-
-/* avatar = coloured circle with the user's initial */
-.avatar {
-  display: inline-grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  min-width: 34px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #6a4cef, #a78bff);
-  color: #fff;
-  font-weight: 700;
-  font-size: 14px;
-  text-transform: uppercase;
+  font-size: 17px;
 }
 
 .mainnav {
   display: flex;
-  gap: 14px;
+  gap: 6px;
   flex: 1;
   justify-content: center;
   flex-wrap: wrap;
@@ -96,40 +84,56 @@ body {
 .mainnav a {
   color: var(--muted);
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
 }
 
 .mainnav a:hover {
+  background: var(--card-2);
   color: var(--text);
 }
 
 .mainnav a.active {
-  color: var(--accent);
-  font-weight: 700;
+  color: var(--primary);
+  background: #e7f0fe;
 }
 
+/* --- Cards / layout ------------------------------------------------------ */
 .card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: var(--pad);
+  padding: 24px;
   width: 100%;
-  max-width: 480px;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  max-width: 460px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
 }
 
-/* Pages with the main navigation are content-heavy -> wider card. */
 body:has(.mainnav) .card {
   max-width: 720px;
 }
 
-.card h2 {
-  margin-top: 0;
-  margin-bottom: 16px;
-  font-weight: 600;
+/* Pages d'auth (login/register) : carte centrée verticalement */
+body:not(:has(.mainnav)) {
+  justify-content: center;
+  padding: 24px 16px;
 }
 
+h1 {
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+
+.card h2 {
+  margin: 18px 0 12px;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* --- Forms -------------------------------------------------------------- */
 form {
   display: flex;
   flex-direction: column;
@@ -144,48 +148,42 @@ label {
   color: var(--muted);
 }
 
-input {
-  appearance: none;
-  background: var(--card-2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: var(--text);
-  font-size: 15px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.25);
-}
-
+input,
 textarea {
-  background: var(--card-2);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 11px 12px;
   color: var(--text);
   font-size: 15px;
   font-family: inherit;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.2);
+}
+
+textarea {
   resize: vertical;
 }
 
 button {
-  background: var(--accent);
-  color: white;
+  background: var(--primary);
+  color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 11px 14px;
+  padding: 11px 16px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.05s ease;
+  transition: background 0.15s ease;
 }
 
 button:hover:not(:disabled) {
-  background: var(--accent-hover);
+  background: var(--primary-hover);
 }
 
 button:disabled {
@@ -194,15 +192,13 @@ button:disabled {
 }
 
 button.ghost {
-  background: transparent;
+  background: var(--card-2);
   border: 1px solid var(--border);
   color: var(--text);
-  font-weight: 500;
 }
 
 button.ghost:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  background: #e4e6eb;
 }
 
 .muted {
@@ -212,8 +208,8 @@ button.ghost:hover {
 
 .error {
   color: var(--error);
-  background: rgba(255, 107, 107, 0.08);
-  border: 1px solid rgba(255, 107, 107, 0.4);
+  background: #fce8e6;
+  border: 1px solid #f5c6c2;
   border-radius: 8px;
   padding: 8px 10px;
   font-size: 14px;
@@ -221,7 +217,7 @@ button.ghost:hover {
 }
 
 a {
-  color: var(--accent);
+  color: var(--primary);
 }
 
 .grid {
@@ -241,7 +237,7 @@ a {
   grid-template-columns: max-content 1fr;
   column-gap: 16px;
   row-gap: 8px;
-  margin: 18px 0 0;
+  margin: 12px 0 0;
 }
 
 .profile dt {
@@ -252,13 +248,13 @@ a {
 .profile dd {
   margin: 0;
   font-size: 15px;
-  word-break: break-all;
+  word-break: break-word;
 }
 
-/* --- Home hub ------------------------------------------------------------ */
+/* --- Home hub ----------------------------------------------------------- */
 .hub {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 14px;
   margin: 18px 0;
 }
@@ -267,21 +263,23 @@ a {
   display: block;
   text-decoration: none;
   color: var(--text);
-  background: var(--card-2);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px;
-  transition: border-color 0.15s ease, transform 0.05s ease;
+  padding: 18px;
+  box-shadow: var(--shadow);
+  transition: transform 0.06s ease, border-color 0.15s ease;
 }
 
 .hub-tile:hover {
-  border-color: var(--accent);
+  border-color: var(--primary);
   transform: translateY(-2px);
 }
 
 .hub-tile h2 {
   margin: 0 0 6px;
   font-size: 17px;
+  color: var(--primary);
 }
 
 .hub-tile p {
@@ -291,11 +289,16 @@ a {
 }
 
 .intel-box {
-  background: var(--card-2);
-  border: 1px solid var(--border);
+  background: #e7f0fe;
+  border: 1px solid #cfe0fc;
   border-radius: var(--radius);
-  padding: 12px 16px;
+  padding: 14px 18px;
   margin-bottom: 18px;
+}
+
+.intel-box h2 {
+  margin-top: 0;
+  color: var(--primary);
 }
 
 .intel-box ul {
@@ -303,95 +306,116 @@ a {
   padding-left: 18px;
 }
 
-/* --- Timeline ------------------------------------------------------------ */
+/* --- Avatars / badges --------------------------------------------------- */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  text-transform: uppercase;
+}
+
+.badge {
+  display: inline-block;
+  background: #e7f0fe;
+  border: 1px solid #cfe0fc;
+  color: var(--primary);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+/* --- Timeline ----------------------------------------------------------- */
 .post-form {
   flex-direction: row;
   align-items: flex-start;
   gap: 10px;
   margin-bottom: 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
 }
 
 .post-form textarea {
   flex: 1;
-}
-
-.badge {
-  display: inline-block;
-  background: rgba(124, 92, 255, 0.15);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-size: 12px;
-  margin-left: 6px;
+  background: var(--card-2);
 }
 
 .feed {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .post {
-  background: var(--card-2);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 16px;
+  box-shadow: var(--shadow);
 }
 
 .post header {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .post header .who {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .post header .score {
   margin-left: auto;
-}
-
-.sugg .who {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.post .score {
   font-size: 12px;
-  color: var(--accent);
+  color: var(--primary);
   font-weight: 700;
+  background: #e7f0fe;
+  padding: 3px 10px;
+  border-radius: 999px;
 }
 
 .post p {
-  margin: 6px 0 10px;
+  margin: 6px 0 12px;
+  font-size: 15px;
 }
 
 .post footer {
   display: flex;
   align-items: center;
   gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
 }
 
 .post footer button {
-  padding: 6px 12px;
-  font-size: 13px;
-  background: transparent;
+  padding: 7px 14px;
+  font-size: 14px;
+  background: var(--card-2);
   border: 1px solid var(--border);
-  color: var(--text);
+  color: var(--muted);
 }
 
 .post footer button.liked {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #e7f0fe;
 }
 
-/* --- Discovery ----------------------------------------------------------- */
+/* --- Discovery ---------------------------------------------------------- */
 .inline-form {
   flex-direction: row;
   gap: 10px;
@@ -415,27 +439,36 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--card-2);
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 10px 14px;
+  box-shadow: var(--shadow);
+}
+
+.sugg .who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .sugg button {
-  padding: 6px 12px;
-  font-size: 13px;
+  padding: 7px 14px;
+  font-size: 14px;
 }
 
-/* --- Settings ------------------------------------------------------------ */
+/* --- Settings ----------------------------------------------------------- */
 .setting {
-  background: var(--card-2);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 14px 16px;
+  padding: 16px;
   margin-bottom: 14px;
+  box-shadow: var(--shadow);
 }
 
 .setting input[type="range"] {
   width: 100%;
   padding: 0;
+  accent-color: var(--primary);
 }
